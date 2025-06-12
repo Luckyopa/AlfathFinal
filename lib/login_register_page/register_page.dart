@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -15,102 +13,240 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  bool isLoading = false;
+  List<dynamic> fakultasList = [];
+  int? selectedFakultasId;
+  bool isLoadingFakultas = true;
+  bool isRegistering = false;
 
-  Future<void> registerUser() async {
-    setState(() => isLoading = true);
+  @override
+  void initState() {
+    super.initState();
+    fetchFakultas();
+  }
+
+  Future<void> fetchFakultas() async {
     try {
-      final dio = Dio();
-      final response = await dio.post(
-        'http://10.0.2.2:8000/api/user',
+      final response = await Dio().get('http://10.0.2.2:8000/api/fakultas');
+      if (response.statusCode == 200) {
+        setState(() {
+          fakultasList = response.data['data'];
+          isLoadingFakultas = false;
+          selectedFakultasId =
+              fakultasList.isNotEmpty ? fakultasList[0]['id_fakultas'] : null;
+        });
+      }
+    } catch (e) {
+      print("Gagal fetch fakultas: $e");
+    }
+  }
+
+  Future<void> register() async {
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        selectedFakultasId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Semua field wajib diisi")));
+      return;
+    }
+
+    setState(() => isRegistering = true);
+    try {
+      await Dio().post(
+        'http://10.0.2.2:8000/api/register',
         data: {
           'name': nameController.text,
           'email': emailController.text,
           'password': passwordController.text,
+          'id_fakultas': selectedFakultasId,
           'role': 'pengurus',
-          'id_fakultas': 1,
         },
         options: Options(headers: {'Accept': 'application/json'}),
       );
 
-      print('Register berhasil: ${response.data}');
-      await loginAfterRegister(emailController.text, passwordController.text);
-    } catch (e) {
-      print('Register gagal: $e');
+      Navigator.pushReplacementNamed(context, '/login');
+    } on DioError catch (e) {
+      print("Gagal register: ${e.response?.data}");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Register gagal')),
+        SnackBar(content: Text("Gagal mendaftar: ${e.response?.data}")),
+      );
+    } catch (e) {
+      print("Gagal register: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal mendaftar: $e")),
       );
     } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> loginAfterRegister(String email, String password) async {
-    try {
-      final dio = Dio();
-      final response = await dio.post(
-        'http://10.0.2.2:8000/api/login',
-        data: {'email': email, 'password': password},
-        options: Options(headers: {'Accept': 'application/json'}),
-      );
-
-      final token = response.data['access_token'];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('access_token', token);
-      print('Login otomatis berhasil. Token: $token');
-
-      Navigator.pushReplacementNamed(context, '/beranda');
-    } catch (e) {
-      print('Login otomatis gagal: $e');
+      setState(() => isRegistering = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final softDecoration = BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.shade300,
+          offset: Offset(4, 4),
+          blurRadius: 8,
+        ),
+        BoxShadow(color: Colors.white, offset: Offset(-4, -4), blurRadius: 8),
+      ],
+    );
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              Image.asset('assets/logo_alfath.png'),
-              const SizedBox(height: 40),
-              const Text(
-                'Buat Akun Baru',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+      backgroundColor: Color(0xFFF2F2F2),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+        child: Column(
+          children: [
+            SizedBox(height: 40),
+            Image.asset('assets/logo_alfath.png', height: 100),
+            SizedBox(height: 20),
+            Text(
+              "Daftar Akun",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade800,
               ),
-              const SizedBox(height: 20),
-              TextField(
+            ),
+            SizedBox(height: 30),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              decoration: softDecoration,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: selectedFakultasId,
+                  isExpanded: true,
+                  hint: Text("Pilih Fakultas"),
+                  items:
+                      fakultasList.map<DropdownMenuItem<int>>((fakultas) {
+                        return DropdownMenuItem<int>(
+                          value: fakultas['id_fakultas'],
+                          child: Text(fakultas['nama_fakultas']),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedFakultasId = value);
+                  },
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Container(
+              decoration: softDecoration,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Nama Lengkap',
+                ),
               ),
-              const SizedBox(height: 20),
-              TextField(
+            ),
+            SizedBox(height: 16),
+            Container(
+              decoration: softDecoration,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Email',
+                ),
               ),
-              const SizedBox(height: 20),
-              TextField(
+            ),
+            SizedBox(height: 16),
+            Container(
+              decoration: softDecoration,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Password',
+                ),
               ),
-              const SizedBox(height: 30),
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: registerUser,
-                      child: const Text('Daftar'),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Sudah punya akun? "),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/login');
+                  },
+                  child: Text(
+                    "Login di sini",
+                    style: TextStyle(
+                      color: Colors.deepPurple,
+                      fontWeight: FontWeight.bold,
                     ),
-              const SizedBox(height: 30),
-              Image.asset('assets/google.png', height: 30),
-            ],
-          ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            InkWell(
+              onTap: isRegistering ? null : register,
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                decoration: softDecoration,
+                child:
+                    isRegistering
+                        ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : Text(
+                          "Daftar",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+              ),
+            ),
+            SizedBox(height: 30),
+            Text("Atau daftar dengan", style: TextStyle(color: Colors.grey)),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _socialLoginIcon('assets/google.png'),
+                _socialLoginIcon('assets/facebook.png'),
+                _socialLoginIcon('assets/twitter.png'),
+              ],
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _socialLoginIcon(String assetPath) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: Offset(4, 4),
+            blurRadius: 8,
+          ),
+          BoxShadow(color: Colors.white, offset: Offset(-4, -4), blurRadius: 8),
+        ],
+      ),
+      child: Image.asset(assetPath, width: 24),
     );
   }
 }

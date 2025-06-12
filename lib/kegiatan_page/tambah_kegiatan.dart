@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'kegiatan.dart';
 
 class TambahKegiatanPage extends StatefulWidget {
   const TambahKegiatanPage({Key? key}) : super(key: key);
@@ -18,7 +17,6 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
   final TextEditingController _kuotaController = TextEditingController();
   final TextEditingController _cpController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
-
   String? fileName;
 
   Future<void> pickFile() async {
@@ -68,7 +66,7 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       fillColor: Colors.white,
       suffixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
       ),
     );
@@ -91,8 +89,11 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(3, 3)),
+              const BoxShadow(color: Colors.white, blurRadius: 6, offset: Offset(-3, -3)),
+            ],
+            borderRadius: BorderRadius.circular(16),
           ),
           child: TextFormField(
             controller: controller,
@@ -114,32 +115,45 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       backgroundColor: const Color(0xffF6F6F6),
       body: Column(
         children: [
+          // HEADER
           Container(
             width: double.infinity,
-            color: const Color(0xFF8B0000),
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(16, 50, 16, 24),
+            decoration: BoxDecoration(
+              color: Colors.red.shade700,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              ),
+            ),
+            child: Row(
               children: [
-                Text('Kegiatan', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
-                SizedBox(height: 4),
-                Text('Tambah Kegiatan', style: TextStyle(fontSize: 14, color: Colors.white)),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                ),
+                const SizedBox(width: 8),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Kegiatan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                    SizedBox(height: 2),
+                    Text('Tambah Kegiatan', style: TextStyle(fontSize: 14, color: Colors.white70)),
+                  ],
+                ),
               ],
             ),
           ),
+
+          // FORM
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildFormField(
-                      label: "Nama Kegiatan",
-                      controller: _namaController,
-                      hintText: "Masukan Nama Kegiatan",
-                      icon: null, // <== ikon dihapus sesuai permintaan
-                    ),
+                    _buildFormField(label: "Nama Kegiatan", controller: _namaController, hintText: "Masukan Nama Kegiatan"),
                     _buildFormField(
                       label: "Tanggal",
                       controller: _tanggalController,
@@ -156,24 +170,11 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                       readOnly: true,
                       onTap: _pickWaktu,
                     ),
-                    _buildFormField(
-                      label: "Tempat Kegiatan",
-                      controller: _tempatController,
-                      hintText: "Masukan Tempat",
-                      icon: Icons.location_on,
-                    ),
-                    _buildFormField(
-                      label: "Kuota Pendaftaran",
-                      controller: _kuotaController,
-                      hintText: "Masukan Kuota Pendaftaran",
-                      icon: Icons.group,
-                    ),
-                    _buildFormField(
-                      label: "Contact Person",
-                      controller: _cpController,
-                      hintText: "Masukan kontak penyelenggara",
-                      icon: Icons.phone,
-                    ),
+                    _buildFormField(label: "Tempat Kegiatan", controller: _tempatController, hintText: "Masukan Tempat", icon: Icons.location_on),
+                    _buildFormField(label: "Kuota Pendaftaran", controller: _kuotaController, hintText: "Masukan Kuota Pendaftaran", icon: Icons.group),
+                    _buildFormField(label: "Contact Person", controller: _cpController, hintText: "Masukan kontak penyelenggara", icon: Icons.phone),
+
+                    // FOTO
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -185,8 +186,11 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(3, 3)),
+                                    const BoxShadow(color: Colors.white, blurRadius: 6, offset: Offset(-3, -3)),
+                                  ],
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                                 child: Text(fileName ?? 'Masukan Foto', style: TextStyle(color: Colors.grey[600])),
@@ -196,18 +200,19 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                             ElevatedButton(
                               onPressed: pickFile,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF8B0000),
+                                backgroundColor: Colors.red.shade700,
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                               ),
-                              child: const Text("Pilih Foto",
-                              style: TextStyle(color: Colors.white),
-                              ),
-                            )
+                              child: const Text("Pilih Foto", style: TextStyle(color: Colors.white)),
+                            ),
                           ],
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 14),
+
                     _buildFormField(
                       label: "Deskripsi Kegiatan",
                       controller: _deskripsiController,
@@ -215,6 +220,7 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                       icon: Icons.description_outlined,
                       maxLines: 4,
                     ),
+
                     Row(
                       children: [
                         Expanded(
@@ -232,12 +238,11 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
                           child: ElevatedButton(
                             onPressed: _submitForm,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF8B0000),
+                              backgroundColor: Colors.red.shade700,
                               padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text("Submit",
-                            style: TextStyle(color: Colors.white),
-                            ),
+                            child: const Text("Submit", style: TextStyle(color: Colors.white)),
                           ),
                         ),
                       ],
@@ -248,29 +253,6 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 10),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Icon(Icons.home, size: 28),
-            Icon(Icons.description, size: 28),
-            Icon(Icons.calendar_month, size: 28, color: Colors.red),
-            Icon(Icons.image, size: 28),
-            Icon(Icons.person, size: 28),
-          ],
-        ),
       ),
     );
   }

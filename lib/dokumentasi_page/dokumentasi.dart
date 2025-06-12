@@ -1,4 +1,3 @@
-// dokumentasi_page.dart
 import 'package:flutter/material.dart';
 import 'detail_dokumentasi.dart';
 import 'tambah_dokumentasi.dart';
@@ -7,108 +6,154 @@ import 'package:alfath/dokumen_page/dokumen.dart';
 import 'package:alfath/kegiatan_page/kegiatan.dart';
 import 'package:alfath/profile_page/profile.dart';
 
-
-class DokumentasiPage extends StatelessWidget {
+class DokumentasiPage extends StatefulWidget {
   const DokumentasiPage({super.key});
+
+  @override
+  State<DokumentasiPage> createState() => _DokumentasiPageState();
+}
+
+class _DokumentasiPageState extends State<DokumentasiPage> {
+  int _selectedIndex = 3;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.red[900],
-        automaticallyImplyLeading: false,
-        title: const Text('Dokumentasi', style: TextStyle(color: Colors.white)),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Cari Dokumentasi',
-                  prefixIcon: Icon(Icons.search),
-                  border: InputBorder.none,
-                ),
+      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
+      body: Column(
+        children: [
+          // HEADER
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red.shade700,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
               ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.only(
+              top: 60,
+              left: 24,
+              right: 24,
+              bottom: 30,
+            ),
+            width: double.infinity,
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DropdownButton<String>(
-                  hint: Text('Tahun :'),
-                  items: [],
-                  onChanged: null,
+                Text(
+                  "Dokumentasi",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                DropdownButton<String>(
-                  hint: Text('Bulan:'),
-                  items: [],
-                  onChanged: null,
-                ),
-                DropdownButton<String>(
-                  hint: Text('Tanggal:'),
-                  items: [],
-                  onChanged: null,
+                SizedBox(height: 4),
+                Text(
+                  "Jumlah Dokumentasi",
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                children: List.generate(2, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DetailDokumentasiPage(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 5,
-                            offset: const Offset(2, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: const [
-                          Expanded(child: Placeholder()),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Bukber Hari raya Lebaran', style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text('Minggu, 25 Mei 2025', style: TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          )
-                        ],
+          ),
+
+          // Konten scrollable
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Cari Dokumentasi',
+                        prefixIcon: Icon(Icons.search),
+                        border: InputBorder.none,
                       ),
                     ),
-                  );
-                }),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      DropdownButton<String>(
+                        hint: const Text('Tahun :'),
+                        items: [],
+                        onChanged: null,
+                      ),
+                      DropdownButton<String>(
+                        hint: const Text('Bulan:'),
+                        items: [],
+                        onChanged: null,
+                      ),
+                      DropdownButton<String>(
+                        hint: const Text('Tanggal:'),
+                        items: [],
+                        onChanged: null,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    physics: const NeverScrollableScrollPhysics(), // Disable scroll agar tidak bentrok
+                    shrinkWrap: true, // Penting agar tidak infinite height
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    children: List.generate(2, (index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DetailDokumentasiPage(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 5,
+                                offset: const Offset(2, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(child: Image.asset("assets/banner.png")),
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Bukber Hari raya Lebaran', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('Minggu, 25 Mei 2025', style: TextStyle(fontSize: 12)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+
+      // Floating Action Button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -117,72 +162,69 @@ class DokumentasiPage extends StatelessWidget {
           );
         },
         backgroundColor: Colors.red[900],
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+
+      // Bottom Navigation Bar
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 250, 250, 250),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
+              color: Colors.grey.shade400,
               blurRadius: 8,
-              offset: Offset(0, -2),
+              offset: const Offset(4, 4),
+            ),
+            const BoxShadow(
+              color: Colors.white,
+              blurRadius: 8,
+              offset: Offset(-4, -4),
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: BottomNavigationBar(
-          currentIndex: 3,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Color(0xFFA7281E),
-          unselectedItemColor: Colors.black54,
-          type: BottomNavigationBarType.fixed,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  AdminPage()),
-                );
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DokumenPage()),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => KegiatanPage()),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DokumentasiPage(),
-                  ),
-                );
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-                break;
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file), label: 'Dokumen'),
-            BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Kalender'),
-            BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Galeri'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-          ],
-        )),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: const Color.fromARGB(255, 250, 250, 250),
+            elevation: 0,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            currentIndex: _selectedIndex,
+            onTap: (index) {
+              setState(() => _selectedIndex = index);
+              switch (index) {
+                case 0:
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage()));
+                  break;
+                case 1:
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const DokumenPage()));
+                  break;
+                case 2:
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const KegiatanPage()));
+                  break;
+                case 3:
+                  break;
+                case 4:
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+                  break;
+              }
+            },
+            selectedItemColor: Colors.red.shade700,
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file), label: "Dokumen"),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Kalender"),
+              BottomNavigationBarItem(icon: Icon(Icons.image), label: "Galeri"),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

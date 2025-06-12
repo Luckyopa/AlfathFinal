@@ -5,314 +5,336 @@ import 'package:alfath/beranda_page/beranda_admin.dart';
 import 'package:alfath/dokumen_page/dokumen.dart';
 import 'package:alfath/dokumentasi_page/dokumentasi.dart';
 import 'package:alfath/profile_page/profile.dart';
-class KegiatanPage extends StatelessWidget {
+
+class KegiatanPage extends StatefulWidget {
   const KegiatanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String>> kegiatan = [
-      {
-        'nama': 'Bukber Hari raya',
-        'mulai': 'Minggu, 25 Mei 2025',
-        'selesai': 'Minggu, 25 Mei 2025',
-      },
-      {
-        'nama': 'Laporan Keuangan Mei',
-        'mulai': 'Minggu, 24 Mei 2025',
-        'selesai': 'Minggu, 25 Mei 2025',
-      },
-    ];
+  State<KegiatanPage> createState() => _KegiatanPageState();
+}
 
+class _KegiatanPageState extends State<KegiatanPage> {
+  final List<Map<String, String>> allKegiatan = [
+    {
+      'nama': 'Bukber Hari raya',
+      'mulai': '2025-05-25',
+      'selesai': '2025-05-25',
+      'lokasi': 'Aula 1',
+    },
+    {
+      'nama': 'Laporan Keuangan Mei',
+      'mulai': '2025-05-24',
+      'selesai': '2025-05-25',
+      'lokasi': 'Ruang B101',
+    },
+  ];
+
+  List<Map<String, String>> filteredKegiatan = [];
+  String selectedMonth = 'Mei';
+  String selectedYear = '2025';
+  String searchText = '';
+  int _selectedIndex = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredKegiatan = allKegiatan;
+  }
+
+  void filterKegiatan() {
+    setState(() {
+      filteredKegiatan = allKegiatan.where((kegiatan) {
+        final date = DateTime.parse(kegiatan['mulai']!);
+        final monthMatch = date.month == 5; // Mei
+        final yearMatch = date.year.toString() == selectedYear;
+        final searchMatch = kegiatan['mulai']!.contains(searchText);
+        return monthMatch && yearMatch && searchMatch;
+      }).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SafeArea(
         child: Column(
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  height: 165,
-                  width: double.infinity,
-                  color: const Color(0xFF8B0000),
-                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Kegiatan',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Jumlah Kegiatan',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                      ),
-                    ],
-                  ),
+            // Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 30, 24, 30),
+              decoration: BoxDecoration(
+                color: Colors.red.shade700,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
                 ),
-                Positioned(
-                  bottom: -50,
-                  left: 20,
-                  right: 20,
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/lineChart.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 60),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'List Kegiatan',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TambahKegiatanPage(),
-                        ),
-                      );
+                  Text("Kegiatan",
+                      style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text("Jumlah Kegiatan",
+                      style: TextStyle(fontSize: 16, color: Colors.white70)),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Chart placeholder
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                height: 140,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF2F2F2),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 8,
+                        offset: const Offset(4, 4)),
+                    const BoxShadow(
+                        color: Colors.white,
+                        blurRadius: 8,
+                        offset: Offset(-4, -4)),
+                  ],
+                ),
+                child: const Center(child: Text("Chart Placeholder")),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Search + Filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  // Search
+                  TextField(
+                    onChanged: (value) {
+                      searchText = value;
+                      filterKegiatan();
                     },
-                    child: const Text(
-                      "Tambah Kegiatan",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8B0000),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: "Cari berdasarkan tanggal...",
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
                       ),
-                      textStyle: const TextStyle(fontSize: 10),
-                      elevation: 4,
-                      shadowColor: Colors.black38,
                     ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Filter buttons
+                  Wrap(
+                    spacing: 12,
+                    children: ['2025', '2024'].map((year) {
+                      final isSelected = selectedYear == year;
+                      return ElevatedButton(
+                        onPressed: () {
+                          selectedYear = year;
+                          filterKegiatan();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isSelected ? Colors.red.shade100 : Colors.white,
+                          foregroundColor:
+                              isSelected ? Colors.red : Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 4,
+                        ),
+                        child: Text("Tahun $year"),
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 8,
-                ),
-                child: Row(
-                  children: const [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        "No",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
+
+            const SizedBox(height: 12),
+
+            // List kegiatan
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GridView.builder(
+                  itemCount: filteredKegiatan.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, childAspectRatio: 0.8, crossAxisSpacing: 12, mainAxisSpacing: 12),
+                  itemBuilder: (context, index) {
+                    final kegiatan = filteredKegiatan[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const DetailKegiatanPage()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              blurRadius: 8,
+                              offset: const Offset(4, 4),
+                            ),
+                            const BoxShadow(
+                              color: Colors.white,
+                              blurRadius: 8,
+                              offset: Offset(-4, -4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Gambar dummy
+                            Container(
+                              height: 80,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: const DecorationImage(
+                                  image: AssetImage('assets/banner.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(kegiatan['nama']!,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14)),
+                            const SizedBox(height: 4),
+                            Text("Mulai: ${kegiatan['mulai']}"),
+                            Text("Selesai: ${kegiatan['selesai']}"),
+                            Text("Lokasi: ${kegiatan['lokasi'] ?? '-'}"),
+                          ],
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        "Nama Kegiatan",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        "Tanggal Mulai",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        "Tanggal Selesai",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-            ),
-            const SizedBox(height: 4),
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: kegiatan.length,
-              itemBuilder: (context, index) {
-                final item = kegiatan[index];
-                final rowContent = Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '${index + 1}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          item['nama']!,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          item['mulai']!,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          item['selesai']!,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-
-                if (index == 0) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DetailKegiatanPage(),
-                        ),
-                      );
-                    },
-                    child: rowContent,
-                  );
-                } else {
-                  return rowContent;
-                }
-              },
             ),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+
+      // Floating Add
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.red.shade700,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TambahKegiatanPage()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white,),
+      ),
+
+      // Bottom Navigation Bar
+     bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 250, 250, 250),
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
+              color: Colors.grey.shade400,
               blurRadius: 8,
-              offset: Offset(0, -2),
+              offset: Offset(4, 4),
+            ),
+            BoxShadow(
+              color: Colors.white,
+              blurRadius: 8,
+              offset: Offset(-4, -4),
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: BottomNavigationBar(
-          currentIndex: 2,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Color(0xFFA7281E),
-          unselectedItemColor: Colors.black54,
-          type: BottomNavigationBarType.fixed,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  AdminPage()),
-                );
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DokumenPage()),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => KegiatanPage()),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DokumentasiPage(),
-                  ),
-                );
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-                break;
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file), label: 'Dokumen'),
-            BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Kalender'),
-            BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Galeri'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-          ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Color.fromARGB(255, 250, 250, 250),
+            elevation: 0,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            currentIndex: _selectedIndex,
+            onTap: (index) {
+              setState(() => _selectedIndex = index);
+              switch (index) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminPage()),
+                  );
+                  break;
+                case 1:
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => DokumenPage()),
+                  );
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => KegiatanPage()),
+                  );
+                  break;
+                case 3:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => DokumentasiPage()),
+                  );
+                  break;
+                case 4:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ProfilePage()),
+                  );
+                  break;
+              }
+            },
+            selectedItemColor: Colors.red.shade700,
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.insert_drive_file),
+                label: "Dokumen",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today),
+                label: "Kalender",
+              ),
+              BottomNavigationBarItem(icon: Icon(Icons.photo), label: "Galeri"),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: "Profil",
+              ),
+            ],
+          ),
         ),
-    ));
+      ),
+    );
   }
 }

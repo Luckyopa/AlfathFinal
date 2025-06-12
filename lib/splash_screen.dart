@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,11 +17,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('access_token');
+    final token = prefs.getString('token');
+ // ✅ pakai key 'token'
 
     await Future.delayed(const Duration(seconds: 2)); // loading animasi
 
-    if (token != null) {
+    if (token != null && token.isNotEmpty) {
       Navigator.pushReplacementNamed(context, '/beranda');
     } else {
       Navigator.pushReplacementNamed(context, '/login');
@@ -37,9 +37,9 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo_alfath.png', height: 120), // Logo tetap
+            Image.asset('assets/logo_alfath.png', height: 120),
             const SizedBox(height: 30),
-            const CircularProgressIndicator(), // Loading animasi
+            const CircularProgressIndicator(),
             const SizedBox(height: 10),
             const Text("Memuat aplikasi...", style: TextStyle(color: Colors.grey)),
           ],
